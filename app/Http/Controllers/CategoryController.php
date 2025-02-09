@@ -3,16 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller {
-
-    private function checkAdmin(Request $request) {
-        if ($request->user()->type !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-    }
 
     public function index() {
         $categories = Category::whereNull('parent_id')->with('children')->get();
@@ -57,5 +52,17 @@ class CategoryController extends Controller {
 
         $category->delete();
         return response()->json(['message' => 'User deleted successfully.']);
+    }
+
+    public function getProductsByCategory($categoryId, Request $request) {
+        // $perPage = (int) $request->query('per_page', 10);
+        // $page = (int) $request->query('page', 1);
+
+        $products = Product::whereHas('categories', function ($query) use ($categoryId) {
+            $query->where('categories.id', $categoryId);
+        })->get();
+        // ->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json($products);
     }
 }
