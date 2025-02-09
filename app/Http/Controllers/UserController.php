@@ -35,7 +35,8 @@ class UserController extends Controller {
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['error' => 'User not found.'], 404);
+            abort(404, 'User not found.');
+            // return response()->json(['error' => 'User not found.'], 404);
         }
 
         $data = $request->validate([
@@ -57,7 +58,8 @@ class UserController extends Controller {
         $user = User::find($id);
 
         if (!$user) {
-            return response()->json(['error' => 'User not found.'], 404);
+            abort(404, 'User not found.');
+            // return response()->json(['error' => 'User not found.'], 404);
         }
 
         $user->delete();
