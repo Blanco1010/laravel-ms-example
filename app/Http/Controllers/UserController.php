@@ -12,28 +12,32 @@ class UserController extends Controller {
         return response()->json(User::all());
     }
 
-    public function store(Request $request)
-    {
-        return $this->handleRequest(function () use ($request) {
-            $data = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|unique:users',
-                'password' => 'required|string|min:6',
-                'type' => ['required', Rule::in(['admin', 'user'])],
-            ]);
+    public function store(Request $request) {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:6',
+            'type' => ['required', Rule::in(['admin', 'user'])],
+        ]);
 
-            $data['password'] = Hash::make($data['password']);
-            $user = User::create($data);
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
 
-            return response()->json($user, 201);
-        });
+        return response()->json($user, 201);
     }
 
     public function show(User $user) {
         return response()->json($user);
     }
 
-    public function update(Request $request, User $user) {
+    public function update(Request $request, $id) {
+
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => ['sometimes', 'string', 'email', Rule::unique('users')->ignore($user->id)],
@@ -49,8 +53,15 @@ class UserController extends Controller {
         return response()->json($user);
     }
 
-    public function destroy(User $user) {
+    public function destroy(string $id) {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
         $user->delete();
-        return response()->json(['message' => 'User deleted']);
+
+        return response()->json(['message' => 'User deleted successfully.']);
     }
 }
