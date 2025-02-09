@@ -12,18 +12,21 @@ class UserController extends Controller {
         return response()->json(User::all());
     }
 
-    public function store(Request $request) {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:6',
-            'type' => ['required', Rule::in(['admin', 'user'])],
-        ]);
+    public function store(Request $request)
+    {
+        return $this->handleRequest(function () use ($request) {
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|email|unique:users',
+                'password' => 'required|string|min:6',
+                'type' => ['required', Rule::in(['admin', 'user'])],
+            ]);
 
-        $data['password'] = Hash::make($data['password']);
-        $user = User::create($data);
+            $data['password'] = Hash::make($data['password']);
+            $user = User::create($data);
 
-        return response()->json($user, 201);
+            return response()->json($user, 201);
+        });
     }
 
     public function show(User $user) {
